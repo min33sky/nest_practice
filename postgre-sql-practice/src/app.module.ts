@@ -10,7 +10,8 @@ import { AuthModule } from './auth/auth.module';
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot(), //* TypeORM이 root에 있는 ormconfig.js를 우선적으로 읽어들인다.
-    BoardsModule, AuthModule,
+    BoardsModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
