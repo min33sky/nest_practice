@@ -3,14 +3,14 @@ import {
   Controller,
   Get,
   Post,
-  Req,
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
 import { AuthService } from 'src/auth/auth.service';
 import { AuthCredentialDto } from 'src/auth/dto/auth-credential.dto';
-import { AuthGuard } from '@nestjs/passport';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { CurrentUser } from 'src/auth/user.decorator';
+import { User } from 'src/auth/user.entity';
 
 @Controller('api/auth')
 export class AuthController {
@@ -28,7 +28,7 @@ export class AuthController {
 
   @Get('test')
   @UseGuards(JwtAuthGuard)
-  test(@Req() req) {
-    console.log('req: ', req.user);
+  test(@CurrentUser() user: User) {
+    console.log('user: ', user);
   }
 }

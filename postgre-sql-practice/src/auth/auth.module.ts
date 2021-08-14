@@ -15,7 +15,7 @@ import { JwtStrategy } from 'src/auth/jwt.strategy';
     JwtModule.register({
       secret: process.env.JWT_SECRET,
       signOptions: {
-        expiresIn: 60 * 60, // 1시간 유효
+        expiresIn: 60 * 60, //? 1시간 유효
       },
     }),
     TypeOrmModule.forFeature([UserRepository]),
