@@ -15,3 +15,12 @@
 ### Error: Unknown authentication strategy "jwt"
 
 > `JwtStrategy`를 module의 `provider`에 넣는 것을 잊지말자
+
+### TypeOrm에서 응답 시 password를 포함하지 않기
+
+> Entity의 column 설정을 아래와 같이 하면 알아서 password는 제외하고 응답한다.
+
+```ts
+@Column({ select: false })
+  password: string;
+```
