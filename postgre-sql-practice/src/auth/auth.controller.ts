@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Logger,
   Post,
   UseGuards,
   ValidationPipe,
@@ -14,7 +15,16 @@ import { User } from 'src/auth/user.entity';
 
 @Controller('api/auth')
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name);
+
   constructor(private authService: AuthService) {}
+
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  getMyStatus(@CurrentUser() user: User) {
+    this.logger.verbose(`get My Status`);
+    return { user };
+  }
 
   @Post('signup')
   signUp(@Body(ValidationPipe) authCredentialDto: AuthCredentialDto) {
@@ -24,11 +34,5 @@ export class AuthController {
   @Post('signin')
   signIn(@Body(ValidationPipe) authCredentialDto: AuthCredentialDto) {
     return this.authService.signIn(authCredentialDto);
-  }
-
-  @Get('test')
-  @UseGuards(JwtAuthGuard)
-  test(@CurrentUser() user: User) {
-    console.log('user: ', user);
   }
 }
