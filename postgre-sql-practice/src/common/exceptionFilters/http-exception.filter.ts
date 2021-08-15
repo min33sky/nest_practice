@@ -22,10 +22,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     const { ip, originalUrl, method } = request;
     const userAgent = request.get('user-agent') || '';
-    const contentLength = response.get('content-length');
 
     this.logger.error(
-      `${method} ${originalUrl} ${status} ${contentLength} - ${userAgent} ${ip}`,
+      `${method} ${originalUrl} ${status} - ${userAgent} ${ip}`,
     );
 
     if (typeof error === 'string') {
