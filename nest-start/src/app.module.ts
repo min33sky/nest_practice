@@ -26,10 +26,8 @@ import { CommentsModule } from './comments/comments.module';
   providers: [AppService],
 })
 export class AppModule implements NestModule {
-  private readonly isDev = process.env.MODE === 'dev' ? true : false;
-
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(LoggerMiddleware).forRoutes('*');
-    mongoose.set('debug', this.isDev);
+    mongoose.set('debug', process.env.NODE_ENV === 'development');
   }
 }

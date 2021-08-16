@@ -45,6 +45,7 @@ export class CatsController {
   @UseGuards(JwtAuthGuard)
   @Get()
   getCurrentCat(@CurrentUser() cat: Cat) {
+    this.logger.debug('현재 고양이의 정보 요청');
     return cat.readOnlyData;
   }
 
@@ -60,12 +61,14 @@ export class CatsController {
   @ApiOperation({ summary: '회원가입' })
   @Post()
   async signUp(@Body() body: CatsRequestDto) {
+    this.logger.debug(`회원 가입 요청: ${body}`);
     return await this.catsService.signup(body);
   }
 
   @ApiOperation({ summary: '로그인' })
   @Post('login')
   logIn(@Body() data: LoginRequestDto) {
+    this.logger.debug('로그인 요청');
     return this.authService.jwtLogIn(data);
   }
 
@@ -76,7 +79,7 @@ export class CatsController {
   }
 
   @ApiOperation({ summary: '고양이 이미지 업로드' })
-  @UseInterceptors(FilesInterceptor('image', 10, multerOptions('cats'))) //? image 필드, 최대 10개, cats폴더 저장
+  @UseInterceptors(FilesInterceptor('image', 10, multerOptions('cats'))) //? FormData의 image field, 최대 10개까지, cats폴더 저장
   @UseGuards(JwtAuthGuard)
   @Post('upload')
   uploadCatImg(
@@ -84,9 +87,6 @@ export class CatsController {
     @CurrentUser() cat: Cat,
   ) {
     this.logger.debug(`파일 업로드 :${JSON.stringify(files)}`);
-    // return {
-    //   image: `http://localhost:8000/media/cats/${files[0].filename}`,
-    // };
     return this.catsService.uploadImg(cat, files);
   }
 

@@ -33,7 +33,9 @@ export class CatsService {
   }
 
   async uploadImg(cat: Cat, files: Express.Multer.File[]) {
+    //? 저장한 폴더 이름을 이미지 파일 앞에 붙인다.
     const fileName = `cats/${files[0].filename}`;
+
     const newCat = await this.catsRepository.findByIdAndUpdateImg(
       cat.id,
       fileName,

@@ -11,7 +11,7 @@ import { CatsService } from './cats.service';
 @Module({
   imports: [
     MulterModule.register({
-      dest: './mojiiiiii', //? dist/common/upload 폴더에 저장
+      dest: 'upload', //? default 업로드 폴더임. 사용 안함
     }),
     MongooseModule.forFeature([
       { name: Cat.name, schema: CatSchema },
