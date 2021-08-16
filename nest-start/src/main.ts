@@ -1,24 +1,26 @@
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { HttpExceptionFilter } from 'src/common/exceptionFilters/http-exception.filter';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import * as expressBasicAuth from 'express-basic-auth';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import * as path from 'path';
+//? Swagger 인증 모듈
+import * as expressBasicAuth from 'express-basic-auth';
 
 async function bootstrap() {
+  const logger = new Logger('Main');
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.useGlobalPipes(new ValidationPipe()); // class validation
   app.useGlobalFilters(new HttpExceptionFilter()); // http-exception
 
-  //? 정적 파일 제공 미들웨어 (NestExpressApplication 타입 설정)
+  //* 정적 파일 제공 미들웨어 (NestExpressApplication 타입 설정)
   app.useStaticAssets(path.join(__dirname, './common', 'uploads'), {
-    prefix: '/media', // http://localhost:8000/media/cats/abcdefg.png
+    prefix: '/media', //? http://localhost:8000/media/cats/abcdefg.png
   });
 
-  // swagger authorization
+  //* swagger authorization
   app.use(
     ['/docs', '/docs-json'],
     expressBasicAuth({
@@ -29,7 +31,7 @@ async function bootstrap() {
     }),
   );
 
-  // Swagger API document
+  //* Swagger API document
   const config = new DocumentBuilder()
     .setTitle('Cats example')
     .setDescription('The cats API description')
@@ -46,5 +48,7 @@ async function bootstrap() {
 
   const PORT = process.env.PORT;
   await app.listen(PORT);
+
+  logger.log(`Cats Server Start at [${PORT}]`);
 }
 bootstrap();
