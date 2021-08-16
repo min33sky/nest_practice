@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CatsRepository } from 'src/cats/cats.repository';
@@ -13,14 +13,42 @@ export class CommentsService {
   ) {}
 
   async getAllComments() {
-    return 'all Comments';
+    try {
+      const comments = await this.commentsModel.find();
+      return comments;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 
   async createComment(id: string, createCommentDto: CreateCommentDto) {
-    return '댓글 작성';
+    try {
+      const targetCat = await this.catsRepository.findCatByIdWithoutPassword(
+        id,
+      );
+      const { author, contents } = createCommentDto;
+      const validatedAuthor =
+        await this.catsRepository.findCatByIdWithoutPassword(author);
+
+      const newComment = await this.commentsModel.create({
+        author: validatedAuthor._id,
+        contents,
+        info: targetCat._id,
+      });
+
+      return await newComment.save();
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 
   async plusLike(id: string) {
-    return '좋아요 요청';
+    try {
+      const comment = await this.commentsModel.findById(id);
+      comment.likeCount += 1;
+      return await comment.save();
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 }

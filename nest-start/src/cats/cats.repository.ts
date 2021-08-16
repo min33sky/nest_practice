@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Cat, CatDocument } from 'src/cats/cats.schema';
 import { CatsRequestDto } from 'src/cats/dto/cats.request.dto';
+import * as mongoose from 'mongoose';
+import { CommentsSchema } from 'src/comments/comments.schema';
 
 @Injectable()
 export class CatsRepository {
@@ -11,7 +13,12 @@ export class CatsRepository {
   ) {}
 
   async findAll() {
-    return await this.catModel.find();
+    const CommentsModel = mongoose.model('comments', CommentsSchema);
+    const result = await this.catModel
+      .find()
+      .populate('comments', CommentsModel);
+
+    return result;
   }
 
   async findByIdAndUpdateImg(id: string, fileName: string) {
@@ -22,7 +29,7 @@ export class CatsRepository {
     return newCat.readOnlyData;
   }
 
-  async findCatByIdWithoutPassword(catId: string) {
+  async findCatByIdWithoutPassword(catId: string | Types.ObjectId) {
     //? id값으로 고양이 정보를 가져오는데 패스워드 정보는 제거한다.
     const cat = await this.catModel.findById(catId).select('-password');
     return cat;
