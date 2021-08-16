@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Logger,
   Post,
   Put,
   UploadedFiles,
@@ -24,6 +25,8 @@ import { CatsService } from './cats.service';
 @Controller('cats')
 @UseInterceptors(SuccessInterceptor)
 export class CatsController {
+  private readonly logger = new Logger(CatsController.name);
+
   constructor(
     private readonly catsService: CatsService,
     private readonly authService: AuthService,
@@ -73,14 +76,14 @@ export class CatsController {
   }
 
   @ApiOperation({ summary: '고양이 이미지 업로드' })
-  @UseInterceptors(FilesInterceptor('image', 10, multerOptions('cats'))) // image 필드, 최대 10개, cats폴더 저장
+  @UseInterceptors(FilesInterceptor('image', 10, multerOptions('cats'))) //? image 필드, 최대 10개, cats폴더 저장
   @UseGuards(JwtAuthGuard)
   @Post('upload')
   uploadCatImg(
     @UploadedFiles() files: Array<Express.Multer.File>,
     @CurrentUser() cat: Cat,
   ) {
-    console.log(files);
+    this.logger.debug(`파일 업로드 :${JSON.stringify(files)}`);
     // return {
     //   image: `http://localhost:8000/media/cats/${files[0].filename}`,
     // };
@@ -92,6 +95,7 @@ export class CatsController {
   })
   @Get('all')
   getAllcat() {
+    this.logger.debug('모든 고양이 가져오기 요청');
     return this.catsService.getAllCat();
   }
 }

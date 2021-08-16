@@ -12,7 +12,7 @@ export class CommentsService {
     private catsRepository: CatsRepository,
   ) {}
 
-  async getAllComments() {
+  async getAllComments(): Promise<Comments[]> {
     try {
       const comments = await this.commentsModel.find();
       return comments;
@@ -23,10 +23,13 @@ export class CommentsService {
 
   async createComment(id: string, createCommentDto: CreateCommentDto) {
     try {
+      //? 댓글을 달 대상이 있는지 확인
       const targetCat = await this.catsRepository.findCatByIdWithoutPassword(
         id,
       );
       const { author, contents } = createCommentDto;
+
+      //? 댓글 작성자의 정보를 확인
       const validatedAuthor =
         await this.catsRepository.findCatByIdWithoutPassword(author);
 

@@ -18,7 +18,7 @@ import { CommentsService } from './comments.service';
         schema: CatSchema,
       },
     ]),
-    CatsModule,
+    CatsModule, //? CommentsService에서 CatsRepository를 사용한다.
   ],
   controllers: [CommentsController],
   providers: [CommentsService],

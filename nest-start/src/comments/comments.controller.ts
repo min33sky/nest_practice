@@ -19,7 +19,7 @@ export class CommentsController {
   @ApiOperation({
     summary: '모든 고양이 프로필에 적힌 회원 댓글 가져오기',
   })
-  @Get()
+  @Get('all')
   async getAllComments() {
     this.logger.debug(`모든 댓글을 가져오는 요청`);
     return this.commentsService.getAllComments();
@@ -33,7 +33,7 @@ export class CommentsController {
     @Param('id') id: string,
     @Body() createCommentDto: CreateCommentDto,
   ) {
-    this.logger.debug('고양이 댓글 남기기');
+    this.logger.debug(`${id} 고양이에게 댓글 남기기`);
     return this.commentsService.createComment(id, createCommentDto);
   }
 
