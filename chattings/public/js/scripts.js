@@ -15,19 +15,30 @@ socket.on('new_chat', (data) => {
   drawNewChat(`${username}: ${chat}`);
 });
 
+socket.on('disconnect_user', (username) => drawNewChat(`${username}: bye...`));
+
 //* draw functions
 const drawHelloStranger = (username) =>
   (helloStrangerElement.innerHTML = `Hello ${username} Stranger :)`);
 
-const drawNewChat = (message) => {
+const drawNewChat = (message, isMe = false) => {
   const wrapperChatBox = document.createElement('div');
-  const chatBox = `
-    <div>
-    ${message}
-    </div>
-  `;
+  wrapperChatBox.className = 'clearfix';
+  let chatBox;
+  if (!isMe)
+    chatBox = `
+      <div class='bg-gray-300 w-3/4 mx-4 my-2 p-2 rounded-lg clearfix break-all'>
+        ${message}
+      </div>
+      `;
+  else
+    chatBox = `
+      <div class='bg-white w-3/4 ml-auto mr-4 my-2 p-2 rounded-lg clearfix break-all'>
+        ${message}
+      </div>
+      `;
   wrapperChatBox.innerHTML = chatBox;
-  chattingBoxElement.appendChild(wrapperChatBox);
+  chattingBoxElement.append(wrapperChatBox);
 };
 
 const handleSubmit = (event) => {
@@ -36,7 +47,7 @@ const handleSubmit = (event) => {
   if (inputValue !== '') {
     socket.emit('submit_chat', inputValue);
     // 내 화면에 그려주기
-    drawNewChat(`me: ${inputValue}`);
+    drawNewChat(`me: ${inputValue}`, true);
     event.target.elements[0].value = '';
   }
 };

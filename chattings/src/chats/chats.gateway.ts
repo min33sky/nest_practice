@@ -1,3 +1,6 @@
+import { Socket as SocketModel } from './models/sockets.model';
+import { Chatting } from './models/chattings.model';
+import { InjectModel } from '@nestjs/mongoose';
 import { Logger } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import {
@@ -9,6 +12,7 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
+import { Model } from 'mongoose';
 
 @WebSocketGateway({ namespace: 'chattings' })
 export class ChatsGateway
@@ -16,8 +20,19 @@ export class ChatsGateway
 {
   private logger = new Logger(ChatsGateway.name);
 
-  handleDisconnect(socket: Socket) {
+  constructor(
+    @InjectModel(Chatting.name) private chattingModel: Model<Chatting>,
+    @InjectModel(SocketModel.name) private socketModel: Model<SocketModel>,
+  ) {}
+
+  async handleDisconnect(socket: Socket) {
     this.logger.debug(`disconnected : ${socket.id} ${socket.nsp.name}`);
+
+    const user = await this.socketModel.findOne({ id: socket.id });
+    if (user) {
+      socket.broadcast.emit('disconnect_user', user.username);
+      await user.delete(); //? 익명 채팅이기때문에 정보를 삭제한다.
+    }
   }
 
   handleConnection(socket: Socket) {
@@ -29,11 +44,18 @@ export class ChatsGateway
   }
 
   @SubscribeMessage('new_user')
-  handleNewUser(
+  async handleNewUser(
     @MessageBody() username: string,
     @ConnectedSocket() socket: Socket,
   ) {
-    //* username은 DB에 저장할 것이다.
+    //* username의 중복 여부를 확인 후 중복일 경우 처리를 해준다.
+    const exist = await this.socketModel.exists({ username });
+    if (exist) username = `${username}_${Math.floor(Math.random() * 100)}`;
+
+    await this.socketModel.create({
+      id: socket.id,
+      username,
+    });
 
     //? 브로드캐스트: 연결 된 모든 소켓에 이벤트를 발생시킨다.
     socket.broadcast.emit('user_connected', username);
@@ -43,10 +65,20 @@ export class ChatsGateway
   }
 
   @SubscribeMessage('submit_chat')
-  handleChat(@MessageBody() chat: string, @ConnectedSocket() socket: Socket) {
+  async handleChat(
+    @MessageBody() chat: string,
+    @ConnectedSocket() socket: Socket,
+  ) {
+    const socketObj = await this.socketModel.findOne({ id: socket.id });
+
+    await this.chattingModel.create({
+      user: socketObj,
+      chat,
+    });
+
     socket.broadcast.emit('new_chat', {
       chat,
-      username: socket.id,
+      username: socketObj.username,
     });
   }
 }
