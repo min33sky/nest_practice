@@ -25,7 +25,7 @@ export class ChatsGateway
   }
 
   afterInit() {
-    this.logger.debug('init');
+    this.logger.debug('Socket.IO Init');
   }
 
   @SubscribeMessage('new_user')
@@ -33,8 +33,20 @@ export class ChatsGateway
     @MessageBody() username: string,
     @ConnectedSocket() socket: Socket,
   ) {
-    // socket.emit('hello_user', 'hello~ ' + username);
+    //* username은 DB에 저장할 것이다.
+
+    //? 브로드캐스트: 연결 된 모든 소켓에 이벤트를 발생시킨다.
+    socket.broadcast.emit('user_connected', username);
+
     //? return한 값은 'new_user' 이벤트를 발생한 곳에서 콜백으로 받을 수 있다.
     return username;
+  }
+
+  @SubscribeMessage('submit_chat')
+  handleChat(@MessageBody() chat: string, @ConnectedSocket() socket: Socket) {
+    socket.broadcast.emit('new_chat', {
+      chat,
+      username: socket.id,
+    });
   }
 }

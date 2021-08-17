@@ -7,9 +7,39 @@ const helloStrangerElement = getDocumentById('hello_stranger');
 const chattingBoxElement = getDocumentById('chatting_box');
 const formElement = getDocumentById('chat_form');
 
+//* global socket handler
+socket.on('user_connected', (username) => drawNewChat(`${username} connected`));
+
+socket.on('new_chat', (data) => {
+  const { chat, username } = data;
+  drawNewChat(`${username}: ${chat}`);
+});
+
 //* draw functions
 const drawHelloStranger = (username) =>
   (helloStrangerElement.innerHTML = `Hello ${username} Stranger :)`);
+
+const drawNewChat = (message) => {
+  const wrapperChatBox = document.createElement('div');
+  const chatBox = `
+    <div>
+    ${message}
+    </div>
+  `;
+  wrapperChatBox.innerHTML = chatBox;
+  chattingBoxElement.appendChild(wrapperChatBox);
+};
+
+const handleSubmit = (event) => {
+  event.preventDefault();
+  const inputValue = event.target.elements[0].value;
+  if (inputValue !== '') {
+    socket.emit('submit_chat', inputValue);
+    // 내 화면에 그려주기
+    drawNewChat(`me: ${inputValue}`);
+    event.target.elements[0].value = '';
+  }
+};
 
 function helloUser() {
   const username = prompt('What is your name?');
@@ -21,6 +51,7 @@ function helloUser() {
 
 function init() {
   helloUser();
+  formElement.addEventListener('submit', handleSubmit);
 }
 
 init();

@@ -6,7 +6,9 @@ export class AppController {
   @Render('index')
   root() {
     return {
-      message: 'Hello World',
+      data: {
+        title: 'Chat App',
+      },
     };
   }
 }
