@@ -22,7 +22,6 @@ import { ChatsGateway } from 'src/chats/chats.gateway';
 })
 export class AppModule implements NestModule {
   configure() {
-    console.log('환경 변수: ', process.env.NODE_ENV === 'development');
     mongoose.set('debug', process.env.NODE_ENV === 'development');
   }
 }
